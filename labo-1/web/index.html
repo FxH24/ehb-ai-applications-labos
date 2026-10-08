@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Labo 1: is dit bericht positief of negatief?</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <h1>Is dit bericht positief of negatief?</h1>
+    <p>Typ een bericht van een klant. Je API vraagt het aan elk van je aanpakken.</p>
+
+    <form id="formulier">
+      <textarea id="tekst" rows="3" required>Geweldig, alweer een week langer wachten op mijn batterij.</textarea>
+      <button>Vergelijk</button>
+    </form>
+
+    <table>
+      <thead><tr><th>Aanpak</th><th>Antwoord</th><th>Tijd</th></tr></thead>
+      <tbody>
+        <tr data-aanpak="regel"><td>Regel</td><td class="antwoord"></td><td class="tijd"></td></tr>
+        <tr data-aanpak="lokaal"><td>Sentimentmodel, lokaal</td><td class="antwoord"></td><td class="tijd"></td></tr>
+        <tr data-aanpak="taalmodel"><td>LLM</td><td class="antwoord"></td><td class="tijd"></td></tr>
+      </tbody>
+    </table>
+
+    <p id="samenvatting"></p>
+  </main>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

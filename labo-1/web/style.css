@@ -1,0 +1,12 @@
+body { font-family: system-ui, sans-serif; margin: 0; background: #f3f5f8; color: #222; }
+main { max-width: 640px; margin: 2rem auto; padding: 1.5rem 2rem; background: white; border-radius: 12px; }
+h1 { font-size: 1.5rem; color: #e2231a; margin-top: 0; }
+textarea { width: 100%; box-sizing: border-box; font: inherit; padding: 0.6rem; border: 1px solid #dde2e8; border-radius: 8px; }
+button { margin-top: 0.6rem; font: inherit; padding: 0.5rem 1.2rem; border: none; border-radius: 8px; background: #e2231a; color: white; cursor: pointer; }
+table { width: 100%; border-collapse: collapse; margin-top: 1.5rem; }
+th, td { text-align: left; padding: 0.5rem 0.4rem; border-bottom: 1px solid #dde2e8; }
+.tijd { color: #5f6b7a; white-space: nowrap; }
+.positief { color: #1a7f37; font-weight: 600; }
+.negatief { color: #b42318; font-weight: 600; }
+.onbekend { color: #8a5a00; }
+#samenvatting { font-weight: 600; min-height: 1.5em; }

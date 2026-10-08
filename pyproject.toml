@@ -1,0 +1,29 @@
+[project]
+name = "ehb-ai-applications-labos"
+version = "1.0.0"
+description = "Labo's voor het opleidingsonderdeel AI Applications (EhB, Toegepaste Informatica)"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "fastapi[standard]>=0.115",
+    "huggingface-hub<2",
+    "openai>=3.26",
+    "psutil>=7.2",
+    "python-dotenv>=1.0",
+    "rich>=15.0",
+    "torch>=2.14",
+    "transformers>=5.18",
+]
+
+[tool.uv]
+package = false
+
+# Labo 1 runs a Hugging Face model on your own laptop. The default PyPI build of
+# torch pulls in CUDA (gigabytes) on Linux; the CPU build is enough.
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }

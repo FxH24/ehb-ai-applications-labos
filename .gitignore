@@ -1,0 +1,12 @@
+# Sleutels
+.env
+
+# Python / uv
+.venv/
+__pycache__/
+*.pyc
+
+# Editors / OS
+.DS_Store
+.idea/
+Thumbs.db
