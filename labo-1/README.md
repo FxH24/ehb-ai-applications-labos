@@ -1,6 +1,6 @@
 # Labo 1: klantberichten indelen als positief of negatief
 
-Vandaag los je **één taak** op drie manieren op: is dit klantbericht van VeloBrux **positief of negatief**? Dat heet *sentiment analysis*. Eerst met regels, dan met een task-specific model (een model dat voor die ene taak getraind is, eerst bij Hugging Face en dan op je eigen laptop), dan met een groot taalmodel (LLM). Je evalueert de drie op dezelfde 12 gelabelde berichten, en op het einde zet je ze achter een API met een kleine webpagina.
+Vandaag los je **één taak** op drie manieren op: is dit klantbericht van VeloBrux **positief of negatief**? Dat heet *sentiment analysis*. Eerst met regels, dan met een task-specific model (een model dat voor die ene taak getraind is, eerst bij Hugging Face en dan op je eigen laptop), dan met een groot taalmodel (LLM). Je evalueert de drie op dezelfde 12 gelabelde berichten. In de tweede les komen je functies achter een API met een kleine webpagina, en zet je twee modellen na elkaar in een cascade, getest op moeilijkere berichten.
 
 **Zo werken we.** Alle code staat al in de repo. We overlopen ze samen, stukje per stukje, en jij voert ze uit. Daarna doe je een kleine aanpassing als **mini-oefening**. Je hebt telkens iets dat werkt. Klopt wat je ziet niet met **"Je ziet nu"**? Steek dan je hand op.
 
@@ -92,7 +92,7 @@ cd labo-1
 | `sentimentmodel.py` | hetzelfde model via de API van Hugging Face (je docent toont het: vraagt een betaald account) |
 | `taalmodel.py` | aanpak 3: een LLM, via een API |
 | `lokaal_taalmodel.py` | een LLM op je eigen laptop, met Ollama |
-| `api.py` en `web/` | een API en een webpagina, voor het einde van de les |
+| `api.py` en `web/` | een API en een webpagina, voor les 2 |
 
 ---
 
@@ -653,6 +653,65 @@ Maak dan een bestand `notities.md` en vul de tabel in. De eerste vier kolommen h
 
 ---
 
+## Thuis
+
+**Een groter LLM op je eigen laptop.** Haal de kleinste versie van Gemma 4, dezelfde familie als in de mini-oefening bij Google (4,6 GB, thuis, niet op de campus). Terwijl het draait, neemt het ongeveer 5 GB werkgeheugen: heb je 8 GB, sluit dan andere programma's.
+
+```bash
+ollama pull gemma4:e2b
+```
+
+Verander in `lokaal_taalmodel.py` één regel:
+
+```python
+MODEL = "gemma4:e2b"
+```
+
+Evalueer op `berichten.csv` en op `nieuwe_berichten.csv`, en voeg een rij "LLM, zelf gehost" toe aan je tabel in `notities.md`: hoeveel juist, seconden per bericht, en hoeveel geheugen het model neemt (dat zie je niet in de uitvoer van `evalueer`, want het model draait in Ollama, niet in je programma: kijk in Taakbeheer, op een Mac in Activiteitenweergave). Is het antwoord altijd één woord?
+
+Het model denkt eerst, onzichtbaar, en dat kost tijd: op een laptop zonder GPU ongeveer 7 seconden per bericht. Zet het denken uit door in `llm.chat.completions.create(...)` een regel `reasoning_effort="none",` toe te voegen, en evalueer opnieuw: sneller? Even goed? Volgende les vergelijken we met de modellen van Google. Heb je 16 GB werkgeheugen, probeer dan ook `gemma4:e4b` (6,6 GB): de E staat voor *effective*, het gedraagt zich als een model van 4 miljard parameters.
+
+---
+
+## Les 2
+
+In de tweede les maak je van je functies een applicatie, en zet je twee modellen na elkaar:
+
+| Stap | Wat doe je? |
+|---|---|
+| Een API met FastAPI, een mini-webapp | je functies achter een API, met een webpagina errond |
+| Een cascade | op moeilijkere berichten, en deze keer schrijf je de functie zelf: eerst het sentimentmodel, de LLM alleen als het sentimentmodel twijfelt |
+
+**Eerst je werk bewaren en de nieuwe bestanden ophalen.** In de map van je repo:
+
+```bash
+git add .
+git status
+```
+
+Controleer: staat `.env` **niet** in de lijst? Goed. Dan:
+
+```bash
+git commit -m "Labo 1, les 1"
+git push
+```
+
+Open je fork op GitHub en klik op **Sync fork** → **Update branch**. Haal de nieuwe bestanden daarna naar je laptop:
+
+```bash
+git pull
+uv sync
+```
+
+**Je ziet nu** twee nieuwe bestanden in de map van dit labo. Je eigen werk blijft staan.
+
+| Bestand | Wat is het? |
+|---|---|
+| `moeilijke_berichten.csv` | 24 gelabelde berichten die moeilijker zijn: sarcasme, ontkenningen, chattaal |
+| `cascade.py` | het sentimentmodel en de LLM na elkaar |
+
+---
+
 ## Een API met FastAPI
 
 Een script kan alleen jij starten. Een webpagina of een app moet je functie kunnen **aanroepen**. Daarvoor dient een **web-API**: een programma dat vragen van andere programma's beantwoordt over HTTP. In Web Advanced riep je met `fetch()` de API van iemand anders aan. Vandaag bouw je er zelf een.
@@ -743,6 +802,187 @@ Stoppen doe je met `Ctrl+C`.
 
 ---
 
+## Een cascade
+
+**Moeilijke berichten.** In les 1 had het sentimentmodel 23 van de 24 berichten juist, en de LLM alle 24. De meeste berichten waren makkelijk. Open `moeilijke_berichten.csv`. Daar staan 24 berichten waar een regel of een model het lastig mee heeft, 12 positieve en 12 negatieve:
+
+| Soort | Voorbeeld |
+|---|---|
+| sarcasme | "Top service: vijf mails gestuurd, nul antwoorden." |
+| een ontkenning | "Ik heb niets te klagen over de herstelling." |
+| goed en slecht nieuws samen | "De fiets is top, maar de levering was een ramp." |
+| geen gevoelswoord | "De batterij haalt 20 kilometer in plaats van de beloofde 80." |
+| chattaal en dialect | "ni normaal hoe lang da duurt bij jullie" |
+| een andere taal | "Pas mal du tout, ce nouveau magasin." |
+
+Op deze berichten had een regel met vijf woorden er 11 juist, het sentimentmodel 13 en de LLM 22. De twee fouten van de LLM waren twee keer `neutraal`, bij berichten met goed en slecht nieuws samen. De prompt vroeg positief of negatief: `neutraal` is geen label, dus `evalueer` telt het als fout.
+
+Een score zegt iets over de berichten waarop je mat. Op de gewone berichten leken het sentimentmodel en de LLM even goed, op de moeilijke scheelt het negen berichten. Meet gewone en moeilijke berichten daarom apart: in productie zijn de meeste berichten gewoon.
+
+**Het label is een keuze.** Is "De fiets is top, maar de levering was een ramp." positief of negatief? Voor dit bestand gold: staat er een klacht in waar de winkel nog iets mee moet doen, dan is het bericht negatief. Als mensen het niet eens zijn over het juiste antwoord, kan een model geen 100% halen.
+
+**Twee modellen na elkaar.** Op de moeilijke berichten is de LLM duidelijk beter dan het sentimentmodel. Maar de LLM is trager, heeft een rate limit, kost per bericht zodra je boven de gratis limiet komt, en elk bericht gaat naar Google. Een **cascade** zet de twee na elkaar: het sentimentmodel antwoordt eerst, en alleen als het niet zeker genoeg is, gaat het bericht naar de LLM.
+
+Hoe zie je dat het sentimentmodel twijfelt? Kijk eerst in de REPL. Met `-i` voert Python `lokaal.py` uit en laat het daarna een REPL open waarin `model` al bestaat:
+
+```bash
+uv run python -i lokaal.py
+```
+
+```python
+>>> model("Vriendelijk personeel, alleen jammer dat mijn rem nog sleept.", top_k=None)
+```
+
+**Je ziet nu** vijf kansen: 4 stars 0,49 · 3 stars 0,37 · 5 stars 0,09 · 2 stars 0,04 · 1 star 0,01. De beste gok is 4 sterren, dus `lokaal.py` zegt positief. De kans op positief is 4 en 5 sterren samen: 0,49 + 0,09 = 0,58. Het label van dit bericht is negatief. Bij "De levering was super snel, top!" is de kans op positief 0,74 + 0,19 = 0,93. Verlaat de REPL met `exit()`.
+
+Open `cascade.py`:
+
+```python
+from hulp import evalueer
+from lokaal import model
+from taalmodel import voorspel_met_taalmodel
+
+DREMPEL = 0.8
+
+
+def lokaal_met_confidence(tekst):
+    # Opdracht: vraag het sentimentmodel om alle vijf de kansen.
+    # Geef het antwoord van lokaal.py terug, en hoe zeker het daarvan is.
+    return "positief", 1.0
+
+
+def voorspel_met_cascade(tekst):
+    # Opdracht: vraag het eerst aan het sentimentmodel.
+    # Is de confidence lager dan DREMPEL? Vraag het dan aan de LLM.
+    return "positief"
+
+
+evalueer(voorspel_met_cascade, "moeilijke_berichten.csv")
+```
+
+- De eerste drie regels halen `evalueer` op, het model uit `lokaal.py` en je functie uit `taalmodel.py`.
+- `DREMPEL` zegt hoe zeker het sentimentmodel moet zijn.
+- De twee functies schrijf je zelf. Nu zeggen ze altijd positief.
+
+```bash
+uv run cascade.py
+```
+
+**Je ziet nu** 12 op 24: de helft van de moeilijke berichten is positief.
+
+**Opdracht.** Schrijf de twee functies, eerst `lokaal_met_confidence` en dan `voorspel_met_cascade`.
+
+`lokaal_met_confidence(tekst)`:
+
+- geeft het antwoord van `lokaal.py` terug, en hoe zeker het daarvan is;
+- de confidence: bij positief de kansen op 4 en 5 sterren samen, bij negatief 1 min die som, afgerond op twee cijfers;
+- klopt ze? Start `uv run python -i cascade.py` en typ `lokaal_met_confidence("Vriendelijk personeel, alleen jammer dat mijn rem nog sleept.")`. Je moet `('positief', 0.58)` zien.
+
+`voorspel_met_cascade(tekst)`:
+
+- eerst het sentimentmodel; is de confidence lager dan `DREMPEL`, dan de LLM;
+- geeft een dictionary terug met `"sentiment"`, `"door"` (wie antwoordde: `"lokaal"` of `"LLM"`) en `"confidence"`. `evalueer` toont elke sleutel als een kolom, en telt hoeveel berichten elk beantwoordde;
+- klopt ze? Met `DREMPEL = 0` antwoordt altijd het sentimentmodel, en zie je 13 op 24.
+
+**Tips bij het schrijven**, als je vastzit:
+
+- `model(tekst, top_k=None)` geeft een lijst, de beste gok eerst: `[{"label": "4 stars", "score": 0.49}, {"label": "3 stars", "score": 0.37}, ...]`.
+- Een lus over die lijst: `for kans in kansen:`, met daarin `kans["label"]` en `kans["score"]`.
+- Hoort een label bij positief? `kans["label"] in ["4 stars", "5 stars"]` is `True` of `False`.
+- Afronden: `round(0.5805, 2)` geeft `0.58`.
+- Twee waarden teruggeven: `return sentiment, confidence`. Ophalen: `sentiment, confidence = lokaal_met_confidence(tekst)`.
+- De LLM heb je al: `voorspel_met_taalmodel(tekst)`.
+
+**Als je cascade werkt**, zie je met `DREMPEL = 0.8` iets als dit (de LLM antwoordt niet elke keer hetzelfde):
+
+```text
+voorspel_met_cascade op moeilijke_berichten.csv
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━┓
+┃ bericht                                                            ┃ antwoord   ┃ label    ┃ door   ┃ confidence ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━┩
+│ Fantastisch, mijn nieuwe fiets is na twee dagen al gestolen.       │ negatief ✓ │ negatief │ LLM    │ 0.60       │
+│ Ik heb niets te klagen over de herstelling.                        │ negatief ✗ │ positief │ lokaal │ 0.84       │
+│ Top service: vijf mails gestuurd, nul antwoorden.                  │ positief ✗ │ negatief │ lokaal │ 0.83       │
+│ Niet te geloven hoe snel dat geregeld was.                         │ positief ✓ │ positief │ LLM    │ 0.55       │
+│ Super, encore une semaine sans vélo.                               │ positief ✗ │ negatief │ lokaal │ 0.97       │
+│ Geen enkel probleem meer sinds de nieuwe batterij.                 │ positief ✓ │ positief │ lokaal │ 0.84       │
+│ De fiets is top, maar de levering was een ramp.                    │ negatief ✓ │ negatief │ lokaal │ 0.93       │
+│ Ik had erger verwacht na al die slechte reviews.                   │ negatief ✗ │ positief │ lokaal │ 0.97       │
+│ Vriendelijk personeel, alleen jammer dat mijn rem nog sleept.      │ negatief ✓ │ negatief │ LLM    │ 0.58       │
+│ Trage levering, maar de monteur heeft het ruimschoots goedgemaakt. │ positief ✓ │ positief │ LLM    │ 0.62       │
+│ Mijn fiets staat sinds maandag bij jullie en ik hoorde nog niets.  │ negatief ✓ │ negatief │ LLM    │ 0.43       │
+│ Franchement, je ne m'attendais pas à un service aussi rapide.      │ positief ✓ │ positief │ LLM    │ 0.60       │
+│ De batterij haalt 20 kilometer in plaats van de beloofde 80.       │ negatief ✓ │ negatief │ lokaal │ 0.98       │
+│ fiets terug in orde, merci he!                                     │ positief ✓ │ positief │ LLM    │ 0.73       │
+│ wtf al 3x terug geweest vr dezelfde lekke band                     │ negatief ✓ │ negatief │ LLM    │ 0.40       │
+│ kei tevreden van mn nieuwe ebike!!                                 │ positief ✓ │ positief │ lokaal │ 0.86       │
+│ ni normaal hoe lang da duurt bij jullie                            │ negatief ✓ │ negatief │ LLM    │ 0.78       │
+│ Can't complain, the repair was quick.                              │ positief ✓ │ positief │ lokaal │ 0.86       │
+│ Het kon moeilijk slechter.                                         │ negatief ✓ │ negatief │ lokaal │ 0.94       │
+│ De herstelling was duur, maar elke euro waard.                     │ positief ✓ │ positief │ LLM    │ 0.68       │
+│ Ik zou jullie niet snel aanraden aan vrienden.                     │ negatief ✓ │ negatief │ lokaal │ 0.90       │
+│ Pas mal du tout, ce nouveau magasin.                               │ positief ✓ │ positief │ lokaal │ 0.80       │
+│ Je n'ai jamais vu un service aussi lent.                           │ negatief ✓ │ negatief │ lokaal │ 0.98       │
+│ Eindelijk een fietsenwinkel die wél terugbelt.                     │ positief ✓ │ positief │ LLM    │ 0.75       │
+└────────────────────────────────────────────────────────────────────┴────────────┴──────────┴────────┴────────────┘
+20/24 juist · 0.373 seconden per bericht
+beantwoord door: 13 lokaal · 11 LLM
+op je eigen laptop: 0.024 seconden CPU-tijd per bericht, 579 MB geheugen
+```
+
+**Lukt het niet?** Begint elk antwoord van de LLM met `<thought>`? De cascade gebruikt je functie uit `taalmodel.py`, en daar staat nog het model `gemma-4-26b-a4b-it` zonder de regel met `</thought>`. Zet in `taalmodel.py` `MODEL = "gemini-3.5-flash-lite"`.
+
+**Mini-oefening.** Verander `DREMPEL` en start opnieuw. Probeer `0.6`, `0.7`, `0.8`, `0.9` en `1` (in de les verdelen we de waarden). Met `0` antwoordt alleen het sentimentmodel, met `1` alleen de LLM. Zet de resultaten in `notities.md`:
+
+```markdown
+| drempel | juist op 24 moeilijke | naar de LLM | seconden per bericht |
+|---|---|---|---|
+| 0 | | | |
+| 0.6 | | | |
+| 0.7 | | | |
+| 0.8 | | | |
+| 0.9 | | | |
+| 1 | | | |
+```
+
+**Denk na:** welke drempel zou jij kiezen voor VeloBrux? Welke berichten heeft de cascade bij elke drempel fout, en hoe zeker was het sentimentmodel daar?
+
+---
+
+## De cascade in je API
+
+**Mini-oefening.** Zet de cascade naast je andere aanpakken, in de API en in de webpagina.
+
+In `api.py`, onder de andere imports:
+
+```python
+from cascade import voorspel_met_cascade
+```
+
+Maak dan een endpoint `/cascade`, **boven** de laatste regel. De functie geeft al een dictionary terug: die mag je endpoint gewoon doorgeven. Zo ziet het eruit:
+
+```python
+@app.get("/cascade")
+def cascade(tekst: str):
+    return voorspel_met_cascade(tekst)
+```
+
+Voeg in `web/index.html` een rij toe aan de tabel, onder die van de LLM:
+
+```html
+<tr data-aanpak="cascade"><td>Cascade</td><td class="antwoord"></td><td class="tijd"></td></tr>
+```
+
+Start de API (`uv run fastapi dev api.py`) en open <http://127.0.0.1:8000/cascade?tekst=Vriendelijk personeel, alleen jammer dat mijn rem nog sleept.>
+
+**Je ziet nu** iets als `{"sentiment":"negatief","door":"LLM","confidence":0.58}`. Probeer ook een makkelijk bericht: dan staat er `"door":"lokaal"`.
+
+Open daarna <http://127.0.0.1:8000>. De cascade staat als vierde rij in de tabel, en aan de tijd zie je wie antwoordde.
+
+**Denk na:** bij welke rijen verliet je bericht je laptop?
+
+---
+
 ## Bewaren in git
 
 ```bash
@@ -762,27 +1002,10 @@ Een sleutel in git is een gelekte sleutel, ook als je hem later verwijdert.
 
 ## Exit ticket
 
-Schrijf in `notities.md`, onder je tabel, en commit:
+Schrijf in `notities.md`, onder je tabellen, en commit:
 
-1. **Meten is weten.** Welke aanpak zou jij kiezen om het sentiment van klantberichten bij VeloBrux in te schatten? Op welke kolom baseer je dat?
-2. **Een model werkt met kansen.** Welk bericht had het sentimentmodel fout, en hoe zeker was het daarvan? Wat zou een app met die confidence moeten doen?
-3. **Privacy.** Welke data verliet je laptop bij de LLM, en naar wie? En bij de regels en het lokale model? En bij de demo via de API van Hugging Face?
-4. Wat was het moeilijkste vandaag?
-
-## Thuis
-
-**Een groter LLM op je eigen laptop.** Haal de kleinste versie van Gemma 4, dezelfde familie als in de mini-oefening bij Google (4,6 GB, thuis, niet op de campus). Terwijl het draait, neemt het ongeveer 5 GB werkgeheugen: heb je 8 GB, sluit dan andere programma's.
-
-```bash
-ollama pull gemma4:e2b
-```
-
-Verander in `lokaal_taalmodel.py` één regel:
-
-```python
-MODEL = "gemma4:e2b"
-```
-
-Evalueer op `berichten.csv` en op `nieuwe_berichten.csv`, en voeg een rij "LLM, zelf gehost" toe aan je tabel in `notities.md`: hoeveel juist, seconden per bericht, en hoeveel geheugen het model neemt (dat zie je niet in de uitvoer van `evalueer`, want het model draait in Ollama, niet in je programma: kijk in Taakbeheer, op een Mac in Activiteitenweergave). Is het antwoord altijd één woord?
-
-Het model denkt eerst, onzichtbaar, en dat kost tijd: op een laptop zonder GPU ongeveer 7 seconden per bericht. Zet het denken uit door in `llm.chat.completions.create(...)` een regel `reasoning_effort="none",` toe te voegen, en evalueer opnieuw: sneller? Even goed? Volgende les vergelijken we met de modellen van Google. Heb je 16 GB werkgeheugen, probeer dan ook `gemma4:e4b` (6,6 GB): de E staat voor *effective*, het gedraagt zich als een model van 4 miljard parameters.
+1. **Meten is weten.** Welke aanpak zou jij kiezen om het sentiment van klantberichten bij VeloBrux in te schatten? Op welke kolom en op welke berichten baseer je dat?
+2. **Een model werkt met kansen.** Welke drempel koos je voor de cascade, en waarom? Welk bericht had het sentimentmodel fout terwijl het er zeker van was?
+3. **Een score hangt af van de berichten.** Op de gewone berichten scoorden het sentimentmodel en de LLM bijna even goed, op de moeilijke niet. Welke berichten zou jij in een testset voor een echte helpdesk steken?
+4. **Privacy.** Welke data verliet je laptop bij de LLM, en naar wie? En bij de regels, het lokale model en de cascade?
+5. Wat was het moeilijkste?

@@ -4,7 +4,7 @@ Labo's van het opleidingsonderdeel AI Applications (EhB, professionele bachelor 
 
 | Labo | Onderwerp |
 |---|---|
-| [Labo 1](labo-1/README.md) | klantberichten indelen als positief of negatief: regels, een model van Hugging Face en een LLM, naast elkaar geëvalueerd |
+| [Labo 1](labo-1/README.md) | klantberichten indelen als positief of negatief: regels, een model van Hugging Face en een LLM, naast elkaar geëvalueerd. In les 2: een API met een webpagina, en een cascade op moeilijkere berichten |
 
 **Starten:** maak een fork van deze repo en volg [labo 1](labo-1/README.md): daar staat hoe je alles installeert.
 
