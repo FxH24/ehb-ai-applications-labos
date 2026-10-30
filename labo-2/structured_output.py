@@ -22,6 +22,14 @@ Ticket: """
 # met categorie, taal, klantnummer en factuurnummer.
 SCHEMA = {
     "type": "object",
+    "properties":{
+        "categorie":{ "type":"string","enum":["facturatie", "levering", "defect", "account", "verhuur"]},
+        "taal":{"type":"string","enum":["nl","fr"]},
+        "klantnummer":{"type": ["string", "null"]},
+        "factuurnummer":{"type": ["string", "null"]},
+    },
+    "required": ["categorie", "taal", "klantnummer", "factuurnummer"],
+
 }
 
 
