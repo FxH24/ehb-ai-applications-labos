@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Labo 2: een helpdeskticket lezen</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <h1>Een helpdeskticket lezen</h1>
+    <p>Typ een ticket, of kies een voorbeeld. Je API leest het met elk van je aanpakken.</p>
+
+    <select id="voorbeelden">
+      <option value="">Kies een voorbeeld…</option>
+      <option>Hoi, Kan ik mijn huurperiode met een week verlengen? Mijn account is geblokkeerd na te veel pogingen. Graag snel antwoord.</option>
+      <option>Mon compte est bloqué. Mon numéro client est K19407. Merci d'avance.</option>
+      <option>Bonjour, J'ai reçu un rappel de paiement alors que j'ai déjà payé. Facture F2026-8227. Cordialement,</option>
+      <option>Er ontbreekt een onderdeel in het pakket, de lader zat er niet bij. Bestelnummer VB914069. Alvast bedankt.</option>
+    </select>
+
+    <form id="formulier">
+      <textarea id="tekst" rows="4" required>Hoi, Kan ik mijn huurperiode met een week verlengen? Mijn account is geblokkeerd na te veel pogingen. Graag snel antwoord.</textarea>
+      <button>Lees</button>
+    </form>
+
+    <table>
+      <thead><tr><th>Aanpak</th><th>Categorie</th><th>Taal</th><th>Klantnummer</th><th>Factuurnummer</th><th>Tijd</th></tr></thead>
+      <tbody>
+        <tr data-aanpak="regels"><td>Regels</td><td class="categorie"></td><td class="taal"></td><td class="klantnummer"></td><td class="factuurnummer"></td><td class="tijd"></td></tr>
+        <tr data-aanpak="schema"><td>LLM met schema</td><td class="categorie"></td><td class="taal"></td><td class="klantnummer"></td><td class="factuurnummer"></td><td class="tijd"></td></tr>
+        <tr data-aanpak="meerdere"><td>LLM, alle categorieën</td><td class="categorie"></td><td class="taal"></td><td class="klantnummer"></td><td class="factuurnummer"></td><td class="tijd"></td></tr>
+        <tr data-aanpak="ticket"><td>Per veld gekozen</td><td class="categorie"></td><td class="taal"></td><td class="klantnummer"></td><td class="factuurnummer"></td><td class="tijd"></td></tr>
+      </tbody>
+    </table>
+
+    <h2>Wat de helpdesk ermee doet</h2>
+    <ul id="acties"></ul>
+  </main>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

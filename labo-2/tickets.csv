@@ -1,0 +1,25 @@
+tekst,categorie,taal,klantnummer,factuurnummer,bestelnummer
+"Madame, Monsieur, J'ai reçu la mauvaise taille de cadre. Commande VB893949. Merci d'avance.",levering,fr,,,VB893949
+"Madame, Monsieur, Je veux supprimer mon compte et mes données. J'utilise l'application sur iPhone. Cordialement,",account,fr,,,
+"Madame, Monsieur, Je voudrais louer deux vélos électriques pour samedi. Nous sommes 3 personnes. Merci d'avance.",verhuur,fr,,,
+"De achterlamp werkt niet meer, ook niet na het vervangen van de kabel. Kan ik een afspraak maken in de werkplaats?",defect,nl,,,
+"Bonjour, J'ai reçu un rappel de paiement alors que j'ai déjà payé. Facture F2026-8227. Cordialement,",facturatie,fr,,F2026-8227,
+"Hallo, Mijn bestelling werd als geleverd gemarkeerd maar ik heb niets ontvangen. Hoeveel waarborg moet ik betalen voor een bakfiets? Groeten,",levering,nl,,,
+Mon compte est bloqué. Mon numéro client est K19407. Merci d'avance.,account,fr,K19407,,
+"Goedemiddag, Het slot van de batterij is geblokkeerd, ik krijg ze er niet uit. Ik heb een andere kleur ontvangen dan ik besteld had.",defect,nl,,,
+"Bonjour, Le chargeur manquait dans le colis. J'habite à Anderlecht. Je ne reçois pas l'e-mail de réinitialisation du mot de passe.",levering,fr,,,
+"Goedemiddag, Mijn schijfremmen piepen heel luid en remmen slecht.",defect,nl,,,
+Wat gebeurt er als de huurfiets gestolen wordt? Het gaat om de periode vanaf 11/1. Graag snel antwoord.,verhuur,nl,,,
+"Hoi, Het display geeft foutcode E54 en de ondersteuning werkt niet. Ik heb al geprobeerd de fiets te herstarten. Groeten,",defect,nl,,,
+"Hallo, Mijn leasecontract via de werkgever wordt niet correct gefactureerd. Het gaat om faktuur F2026-7436. Groeten,",facturatie,nl,,F2026-7436,
+"Goedemiddag, Mijn bestelling is nog altijd niet geleverd. Bestelnummer VB622269.",levering,nl,,,VB622269
+"Hoi, Kan ik mijn huurperiode met een week verlengen? Mijn account is geblokkeerd na te veel pogingen. Graag snel antwoord.",verhuur,nl,,,
+"Beste, Mag ik de huurfiets meenemen op de trein?",verhuur,nl,,,
+"Hoi, Ik werd twee keer gedebiteerd voor dezelfde bestelling. Het gaat om factuur F2026-7992. Het slot van de batterij is geblokkeerd, ik krijg ze er niet uit. Graag snel antwoord.",facturatie,nl,,F2026-7992,
+"Goedemiddag, Mijn betaling met Bancontact is mislukt maar het geld is wel van mijn rekening. Het gaat om factuur F2026-8741. Groeten,",facturatie,nl,,F2026-8741,
+"Hoi, Mijn getrouwheidspunten zijn verdwenen uit mijn account. Mijn klantnummer is K39756. Er staan verzendkosten op de factuur terwijl levering gratis zou zijn. Groeten,",account,nl,K39756,,
+"Bonjour, L'écran affiche le code d'erreur E68. Est-ce couvert par la garantie?",defect,fr,,,
+"Beste, Ik kreeg een aanmaning terwijl ik al betaald heb. Het verschil is 89 euro. Groeten,",facturatie,nl,,,
+"Ik ontvang de mail om mijn wachtwoord te resetten niet. Mijn klantnummer is K36120. Groeten,",account,nl,K36120,,
+"Beste, Welke persoonsgegevens bewaren jullie over mij? Mijn klantnummer is K20518. Alvast bedankt.",account,nl,K20518,,
+"Er ontbreekt een onderdeel in het pakket, de lader zat er niet bij. Bestelnummer VB914069. Alvast bedankt.",levering,nl,,,VB914069
