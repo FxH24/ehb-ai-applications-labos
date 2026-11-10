@@ -56,10 +56,10 @@ uv run regels.py
 uv run prompt_json.py
 uv run structured_output.py
 uv run pydantic_ticket.py
-uv run pydantic_enum.py
 uv run lokaal_taalmodel.py
 uv run controleer.py
 uv run meerdere.py
+uv run rag_intro.py
 ```
 
 ---
