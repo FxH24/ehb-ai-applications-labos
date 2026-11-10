@@ -11,7 +11,18 @@ from structured_output import MODEL, PROMPT, llm
 # Opdracht: beschrijf hier het antwoord als Pydantic-klasse,
 # met categorie, taal, klantnummer en factuurnummer.
 class Ticket(BaseModel):
-    pass
+    
+    categorie: Literal ["facturatie", "levering", "defect", "account", "verhuur"]
+    taal: Literal ["nl","fr"]
+    klantnummer: str | None
+    factuurnummer:str | None
+
+
+
+    
+
+
+
 
 
 def lees_met_pydantic(tekst):
@@ -19,7 +30,7 @@ def lees_met_pydantic(tekst):
         antwoord = llm.chat.completions.parse(
             model=MODEL,
             messages=[{"role": "user", "content": PROMPT + tekst}],
-            response_format=Ticket,
+            response_format=Ticket, #gebruikt de pydantic ipv json schema
         )
     except (RateLimitError, InternalServerError):
         print("  Google antwoordt niet: 20 seconden wachten")
