@@ -1,5 +1,5 @@
 // De webpagina van labo 2. Ze stuurt het ticket naar jouw API, één keer per aanpak,
-// toont de velden naast elkaar, en wat de helpdesk met het ticket zou doen.
+// toont de velden naast elkaar, en naar welk team het ticket gaat.
 // Je hoeft hier niets te wijzigen: de opdracht zit in api.py.
 
 const TEAMS = {
@@ -9,12 +9,11 @@ const TEAMS = {
   account: "Klantendienst",
   verhuur: "Verhuur",
 };
-const TALEN = { nl: "het Nederlands", fr: "het Frans" };
 
 const formulier = document.querySelector("#formulier");
 const tekstveld = document.querySelector("#tekst");
 const rijen = [...document.querySelectorAll("tr[data-aanpak]")];
-const acties = document.querySelector("#acties");
+const uitkomst = document.querySelector("#uitkomst");
 
 document.querySelector("#voorbeelden").addEventListener("change", (event) => {
   if (event.target.value) tekstveld.value = event.target.value;
@@ -57,40 +56,28 @@ async function vulRij(rij, tekst) {
   }
 }
 
-function toonActies(data, aanpak) {
-  acties.innerHTML = "";
-  if (!data) {
-    acties.innerHTML = "<li>Nog geen antwoord om mee te werken.</li>";
-    return;
+function toonUitkomst(data, aanpak) {
+  const teams = data ? categorieen(data).map((c) => TEAMS[c] ?? c) : [];
+  uitkomst.textContent = `Team: ${teams.join(", ") || "—"}`;
+  if (aanpak) {
+    const bron = document.createElement("span");
+    bron.className = "bron";
+    bron.textContent = ` (${aanpak})`;
+    uitkomst.append(bron);
   }
-  const regels = [];
-  const teams = categorieen(data).map((c) => TEAMS[c] ?? c);
-  regels.push(`Doorsturen naar: ${teams.join(" en ") || "niemand (geen categorie)"}`);
-  regels.push(data.taal ? `Antwoorden in ${TALEN[data.taal] ?? data.taal}` : "Taal onbekend: antwoorden in het Nederlands en het Frans");
-  if (data.klantnummer) regels.push(`Klant opzoeken: ${data.klantnummer}`);
-  if (data.factuurnummer) regels.push(`Factuur opzoeken: ${data.factuurnummer}`);
-  for (const regel of regels) {
-    const li = document.createElement("li");
-    li.textContent = regel;
-    acties.append(li);
-  }
-  const bron = document.createElement("li");
-  bron.className = "bron";
-  bron.textContent = `(gelezen door: ${aanpak})`;
-  acties.append(bron);
 }
 
 formulier.addEventListener("submit", async (event) => {
   event.preventDefault();
   const tekst = tekstveld.value;
-  acties.innerHTML = "<li>…</li>";
+  uitkomst.textContent = "Team: …";
   const antwoorden = await Promise.all(rijen.map((rij) => vulRij(rij, tekst)));
-  // de helpdesk gebruikt de laatste aanpak in de tabel die een antwoord gaf
+  // het team komt van de laatste aanpak in de tabel die een antwoord gaf
   for (let i = rijen.length - 1; i >= 0; i--) {
     if (antwoorden[i]) {
-      toonActies(antwoorden[i], rijen[i].cells[0].textContent);
+      toonUitkomst(antwoorden[i], rijen[i].cells[0].textContent);
       return;
     }
   }
-  toonActies(undefined);
+  toonUitkomst(undefined);
 });
